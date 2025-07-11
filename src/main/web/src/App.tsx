@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import {useEffect, useState} from 'react'
 import './App.css'
+import {exportCryptoKeyToPEM, generateRSAKeyPair} from "./lib/keys.ts";
+import WebSocketContext from "./context/WebSocketContext.ts";
+import useWebSocket from "./hooks/useWebSocket.ts";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+import HomePage from "./components/HomePage.tsx";
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [isGenerated, setIsGenerated] = useState(false)
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    useEffect(() => {
+        if (!isGenerated) {
+            generateRSAKeyPair().then(async keys => {
+                console.log('Public Key:', keys.publicKey);
+                console.log('Private Key:', keys.privateKey);
+                const [publicPem, privatePem] = await Promise.all([exportCryptoKeyToPEM(keys.publicKey), exportCryptoKeyToPEM(keys.privateKey!)]);
+
+                console.log("Public Key:\n", publicPem);
+                console.log("Private Key:\n", privatePem);
+                setIsGenerated(true);
+            });
+        }
+
+    }, []);
+
+    const {ws} = useWebSocket();
+
+    if (!isGenerated) {
+        return <h1>Loading...</h1>
+    }
+
+    return (
+        <WebSocketContext.Provider value={ws}>
+            <BrowserRouter>
+                {/*<nav style={{display: 'flex', gap: '1rem'}}>*/}
+                {/*    <Link to="/">Home</Link>*/}
+                {/*    <Link to="/about">About</Link>*/}
+                {/*</nav>*/}
+
+                <Routes>
+                    <Route path="/" element={<HomePage/>}/>
+                    {/*<Route path="/about" element={<AboutPage/>}/>*/}
+                    {/*<Route path="*" element={<NotFoundPage />} />*/}
+                </Routes>
+            </BrowserRouter>
+        </WebSocketContext.Provider>
+    )
 }
 
 export default App
