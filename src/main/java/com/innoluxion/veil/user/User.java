@@ -1,8 +1,6 @@
 package com.innoluxion.veil.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,8 +15,10 @@ import java.util.UUID;
 public class User {
 
     @Id
+    @GeneratedValue
     private UUID id;
 
+    @Column(length = 614, nullable = false)
     private String publicKey;
 
 }
