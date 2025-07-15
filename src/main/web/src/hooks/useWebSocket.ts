@@ -1,14 +1,8 @@
 import {useEffect, useMemo} from 'react';
 import {Client, type IMessage, type StompSubscription} from '@stomp/stompjs';
 
-const DEFAULT_ENDPOINT = 'localhost:8080/ws'; // Стандартный endpoint
+const DEFAULT_ENDPOINT = 'localhost:8080/ws';
 const DEFAULT_TIMEOUT = 250;
-export const WebSocketEvent = {
-    CONNECT: 1,
-    DISCONNECT: 2,
-    RECONNECT: 3,
-    ERROR: 4
-};
 
 export class StompWebSocketClient {
     #client: Client;
