@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.hibernate.annotations.Type;
 
 import java.util.UUID;
 
@@ -22,7 +21,7 @@ public class Message {
         SERVER,
         WHO,
         IAM,
-        TEXT,
+        CONTENT,
     }
 
     @Id
