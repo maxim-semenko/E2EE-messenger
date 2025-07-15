@@ -1,34 +1,34 @@
 export async function generateRSAKeyPair(): Promise<CryptoKeyPair> {
     return await window.crypto.subtle.generateKey(
         {
-            name: "RSASSA-PKCS1-v1_5",
-            modulusLength: 2048,
+            name: "RSA-PSS",
+            modulusLength: 3072,
             publicExponent: new Uint8Array([1, 0, 1]),
-            hash: "SHA-256",
+            hash: "SHA-512",
         },
-        true, // можно экспортировать ключи
+        true,
         ["sign", "verify"]
     );
 }
 
-export async function exportCryptoKeyToPEM(key: CryptoKey): Promise<string> {
-    const spkiOrPkcs8 = await window.crypto.subtle.exportKey(
-        key.type === "public" ? "spki" : "pkcs8",
-        key
-    );
+export async function getBase64FromCryptoKey(key: CryptoKey) {
+    const spkiOrPkcs8 = await window.crypto.subtle.exportKey(key.type === "public" ? "spki" : "pkcs8", key);
 
     const exportedAsString = String.fromCharCode(...new Uint8Array(spkiOrPkcs8));
     const exportedAsBase64 = btoa(exportedAsString);
 
-    const pemHeader = key.type === "public"
-        ? "-----BEGIN PUBLIC KEY-----"
-        : "-----BEGIN PRIVATE KEY-----";
+    return exportedAsBase64.match(/.{1,64}/g)?.join("\n") ?? exportedAsBase64;
 
-    const pemFooter = key.type === "public"
-        ? "-----END PUBLIC KEY-----"
-        : "-----END PRIVATE KEY-----";
+}
 
-    const pemBody = exportedAsBase64.match(/.{1,64}/g)?.join("\n") ?? exportedAsBase64;
+export function base64ToPem(base64: string, type: 'PUBLIC KEY' | 'PRIVATE KEY'): string {
+    const formatted = base64.match(/.{1,64}/g)?.join('\n') ?? '';
+    return `-----BEGIN ${type}-----\n${formatted}\n-----END ${type}-----`;
+}
 
-    return `${pemHeader}\n${pemBody}\n${pemFooter}`;
+export function pemToBase64(pem: string): string {
+    return pem
+        .replace(/-----BEGIN [^-]+-----/, "")
+        .replace(/-----END [^-]+-----/, "")
+        .replace(/\s+/g, "");
 }
