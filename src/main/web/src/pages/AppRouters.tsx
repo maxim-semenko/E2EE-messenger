@@ -9,11 +9,11 @@ const AppRoutes = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const userId = localStorage.getItem("userId");
-        const privateKey = localStorage.getItem("privateKey");
-        const publicKey = localStorage.getItem("publicKey");
+        const currentUser = localStorage.getItem("currentUser");
 
-        if (userId && privateKey && publicKey) {
+        if (currentUser) {
+            const { privateKey, publicKey, userId } = JSON.parse(currentUser);
+
             setUser({id: userId, privateKey, publicKey});
             navigate("/chat");
         } else {

@@ -64,9 +64,14 @@ async function authViaKeys(publicPem: string, privatePem: string) {
     const resp = await axios.post<string>("/api/v1/users", {publicKey: publicKeyBase64});
     const userId = resp.data;
 
-    localStorage.setItem("privateKey", privatePem);
-    localStorage.setItem("publicKey", publicPem);
-    localStorage.setItem("userId", userId);
+    const currentUser = {
+        privateKey: privatePem,
+        publicKey: publicPem,
+        userId: userId
+    };
+
+    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
     addPublicKeyToLocalStorage(userId, publicPem);
 
     return userId;

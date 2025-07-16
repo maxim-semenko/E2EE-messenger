@@ -26,9 +26,7 @@ function ChatPage() {
                         color="white"
                         _hover={{bg: "gray.700"}}
                         onClick={() => {
-                            localStorage.removeItem("userId")
-                            localStorage.removeItem("privateKey")
-                            localStorage.removeItem("publicKey");
+                            localStorage.removeItem("currentUser")
                             setUser(null)
                             navigate("/");
                         }}>
