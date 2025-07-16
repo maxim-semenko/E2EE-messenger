@@ -1,10 +1,5 @@
 import axios from "axios";
-import {base64ToPem, generateRSAKeyPair, getBase64FromCryptoKey, pemToBase64} from "../lib/keys.ts";
-
-
-export type KeySource =
-    | { type: 'generate' }
-    | { type: 'import' };
+import {base64ToPem, generateRSAKeyPair, getBase64FromCryptoKey} from "../lib/keys.ts";
 
 export async function initKeys(file?: string) {
     let publicKey, privateKey;
@@ -60,8 +55,7 @@ export async function importRsaKeys(file: any) {
 }
 
 async function authViaKeys(publicPem: string, privatePem: string) {
-    const publicKeyBase64 = pemToBase64(publicPem);
-    const resp = await axios.post<string>("/api/v1/users", {publicKey: publicKeyBase64});
+    const resp = await axios.post<string>("/api/v1/users", {publicKey: publicPem});
     const userId = resp.data;
 
     const currentUser = {
