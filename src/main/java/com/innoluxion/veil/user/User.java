@@ -18,7 +18,7 @@ public class User {
     @GeneratedValue
     private UUID id;
 
-    @Column(length = 614, nullable = false)
+    @Column(length = 650, nullable = false)
     private String publicKey;
 
 }
