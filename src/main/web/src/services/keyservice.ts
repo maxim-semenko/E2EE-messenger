@@ -6,15 +6,15 @@ export type KeySource =
     | { type: 'generate' }
     | { type: 'import' };
 
-export async function initKeys(source: KeySource) {
+export async function initKeys(file?: string) {
     let publicKey, privateKey;
-    if (source.type === 'generate') {
-        await generateRSAKeyPair()
-        const keys = await generateRsaKeys();
+    if (file) {
+        const keys = await importRsaKeys(file);
         publicKey = keys.publicKey;
         privateKey = keys.privateKey;
-    } else if (source.type === 'import') {
-        const keys = await importRsaKeys();
+    } else {
+        await generateRSAKeyPair()
+        const keys = await generateRsaKeys();
         publicKey = keys.publicKey;
         privateKey = keys.privateKey;
     }
@@ -46,15 +46,12 @@ async function generateRsaKeys() {
     };
 }
 
-export async function importRsaKeys() {
-    const keys = await readKeysFromFile();
+export async function importRsaKeys(file: any) {
+    const keys = await readKeysFromFile(file);
     const [publicPem, privatePem] = [
         extractPemBlock(keys, "PUBLIC KEY"),
         extractPemBlock(keys, "PRIVATE KEY")
     ];
-
-    console.log(publicPem)
-    console.log(privatePem)
 
     return {
         publicKey: publicPem,
@@ -102,24 +99,15 @@ export function downloadKeysFile(privatePem: string, publicPem: string, filename
     URL.revokeObjectURL(url);
 }
 
-function readKeysFromFile(): Promise<string> {
+function readKeysFromFile(filename: any): Promise<string> {
     return new Promise((resolve, reject) => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = ".pem,.txt";
 
-        input.onchange = () => {
-            const file = input.files?.[0];
-            if (!file) return reject("FIle is not selected");
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject("Error to read file");
 
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = () => reject("Error to read file");
+        reader.readAsText(filename);
 
-            reader.readAsText(file);
-        };
-
-        input.click();
     });
 }
 
