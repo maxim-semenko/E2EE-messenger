@@ -1,10 +1,21 @@
 import type {Chat} from "@/model/chat.ts";
 import {create} from "zustand";
 import axios from "axios";
-import type {CurrentUser} from "@/components/store/userStore.ts";
+import {type CurrentUser, useUserStore} from "@/store/userStore.ts";
 import type {PaginatedResponse} from "@/model/types.ts";
-import type {Message} from "@/model/message.ts";
-import {base64ToArrayBuffer, decryptAES, decryptAESKey, importRsaPrivateKeyFromPem} from "@/lib/keys.ts";
+import {type Message, MessageType} from "@/model/message.ts";
+import {
+    arrayBufferToBase64,
+    base64ToArrayBuffer,
+    decryptAES,
+    decryptAESKey,
+    encryptAES,
+    encryptAESKey,
+    generateAESKey,
+    importRsaPrivateKeyFromPem,
+    importRsaPublicKeyFromPem
+} from "@/lib/keys.ts";
+import useWebSocket from "@/hooks/useWebSocket.ts";
 
 
 export interface ChatStore {
@@ -18,6 +29,7 @@ export interface ChatStore {
     reset: () => void;
     // API
     loadChats: (user: CurrentUser) => void;
+    createChat: (title: string) => void;
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
@@ -64,5 +76,28 @@ export const useChatStore = create<ChatStore>((set) => ({
                 console.error("Failed to load or decrypt chats:", error);
             }
         })();
+    },
+    createChat: async (title: string) => {
+        const user = useUserStore.getState().user;
+        const {ws} = useWebSocket();
+
+        if (!user || !ws) return;
+
+        const generatedChatAESKey = await generateAESKey(128);
+        const userPublicKey = await importRsaPublicKeyFromPem(user.publicKey);
+
+        const {cipher, iv} = await encryptAES(title, generatedChatAESKey);
+        const encryptedAESKey = await encryptAESKey(generatedChatAESKey, userPublicKey);
+
+        const message: Message = {
+            sender: user.id,
+            receiver: user.id,
+            type: MessageType.CHAT,
+            iv: arrayBufferToBase64(iv),
+            content: `${arrayBufferToBase64(cipher)}::${arrayBufferToBase64(encryptedAESKey)}`,
+            chat: null,
+        };
+
+        ws.sendMessages([message]);
     }
 }));
