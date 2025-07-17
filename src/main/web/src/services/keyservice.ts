@@ -1,6 +1,7 @@
 import axios from "axios";
 import {base64ToPem, generateRSAKeyPair, getBase64FromCryptoKey} from "../lib/keys.ts";
 
+
 export async function initKeys(file?: string) {
     let publicKey, privateKey;
     if (file) {
@@ -8,7 +9,6 @@ export async function initKeys(file?: string) {
         publicKey = keys.publicKey;
         privateKey = keys.privateKey;
     } else {
-        await generateRSAKeyPair()
         const keys = await generateRsaKeys();
         publicKey = keys.publicKey;
         privateKey = keys.privateKey;
@@ -29,7 +29,7 @@ export async function initKeys(file?: string) {
 }
 
 async function generateRsaKeys() {
-    const keys = await generateRSAKeyPair();
+    const keys = await generateRSAKeyPair(3072);
     const [publicPem, privatePem] = await Promise.all([
         base64ToPem(await getBase64FromCryptoKey(keys.publicKey), "PUBLIC KEY"),
         base64ToPem(await getBase64FromCryptoKey(keys.privateKey), "PRIVATE KEY"),
