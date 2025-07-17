@@ -1,9 +1,6 @@
 package com.innoluxion.veil.message;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,12 +15,12 @@ import java.util.UUID;
 @Table(name = "messages")
 public class Message {
 
-    enum MessageType {
+    public enum MessageType {
         CHAT,
         HELLO,
         IAM,
         WHO,
-        CONTENT,
+        CIPHER,
         SERVER,
     }
 
@@ -40,9 +37,13 @@ public class Message {
     @NonNull
     private UUID chat;
 
+    @Column(length = 2048)
     private String content;
 
+    private String iv;
+
     @NonNull
+    @Enumerated(EnumType.STRING)
     private MessageType type;
 
 }

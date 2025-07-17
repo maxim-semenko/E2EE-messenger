@@ -1,9 +1,6 @@
 package com.innoluxion.veil.util;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class Util {
 
     @Id
+    @Enumerated(EnumType.STRING)
     private UtilKeyType utilKey;
 
     @Column(length = 2600, nullable = false)
