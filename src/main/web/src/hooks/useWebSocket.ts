@@ -1,14 +1,15 @@
 import {useEffect, useMemo} from 'react';
 import {Client, type IMessage, type StompSubscription} from '@stomp/stompjs';
+import type {Message} from "@/model/message.ts";
 
 const DEFAULT_ENDPOINT = 'localhost:8080/ws';
 const DEFAULT_TIMEOUT = 250;
 
 export class StompWebSocketClient {
-    #client: Client;
+    client: Client;
 
     constructor(url: string) {
-        this.#client = new Client({
+        this.client = new Client({
             brokerURL: this.#formatUrl(url),
             reconnectDelay: DEFAULT_TIMEOUT,
             // debug: (str) => console.log('[STOMP]', str),
@@ -33,20 +34,20 @@ export class StompWebSocketClient {
     }
 
     connect() {
-        this.#client.activate();
+        this.client.activate();
     }
 
     disconnect() {
-        this.#client.deactivate();
+        this.client.deactivate();
     }
 
     isConnected() {
-        return this.#client.connected;
+        return this.client.connected;
     }
 
     subscribe(destination: string, callback: (message: IMessage) => void): StompSubscription | null {
-        if (this.#client.connected) {
-            return this.#client.subscribe(destination, callback);
+        if (this.client.connected) {
+            return this.client.subscribe(destination, callback);
         } else {
             console.warn("Tried to subscribe while STOMP is not connected");
             return null;
@@ -54,12 +55,25 @@ export class StompWebSocketClient {
     }
 
     send(destination: string, body: string, headers = {}) {
-        if (this.#client.connected) {
-            this.#client.publish({destination, body, headers});
+        if (this.client.connected) {
+            this.client.publish({destination, body, headers});
         } else {
             console.warn("Cannot send STOMP message, not connected");
         }
     }
+
+    sendMessages(messages: Message[]) {
+        console.log("sendMessages")
+        console.log(messages)
+
+        this.client.publish({
+            destination: '/app/send',
+            body: JSON.stringify(messages),
+        });
+
+        console.log("ok")
+    }
+
 }
 
 function useWebSocket() {
