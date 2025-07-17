@@ -6,7 +6,7 @@ import {Alert, Field, FileUpload, Flex, Textarea, VStack} from "@chakra-ui/react
 import {AnimatePresence} from "framer-motion";
 import {Modal} from "@/components/Modal.tsx";
 import {useNavigate} from "react-router-dom";
-import {type CurrentUser, useUserStore} from "@/components/store/userStore.ts";
+import {type CurrentUser, useUserStore} from "@/store/userStore.ts";
 
 function HomePage() {
     const [isGenerating, setIsGenerating] = useState(false)

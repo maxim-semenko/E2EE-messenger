@@ -2,7 +2,7 @@ import {useEffect} from "react";
 import {Route, Routes, useNavigate} from "react-router-dom";
 import HomePage from "./HomePage";
 import ChatPage from "./ChatPage";
-import {useUserStore} from "@/components/store/userStore.ts";
+import {useUserStore} from "@/store/userStore.ts";
 
 const AppRoutes = () => {
     const setUser = useUserStore((state) => state.setUser);
