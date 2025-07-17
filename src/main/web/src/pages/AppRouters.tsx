@@ -2,17 +2,17 @@ import {useEffect} from "react";
 import {Route, Routes, useNavigate} from "react-router-dom";
 import HomePage from "./HomePage";
 import ChatPage from "./ChatPage";
-import {useUser} from "@/context/UserContext.ts";
+import {useUserStore} from "@/components/store/userStore.ts";
 
 const AppRoutes = () => {
-    const {setUser} = useUser();
+    const setUser = useUserStore((state) => state.setUser);
     const navigate = useNavigate();
 
     useEffect(() => {
         const currentUser = localStorage.getItem("currentUser");
 
         if (currentUser) {
-            const { privateKey, publicKey, userId } = JSON.parse(currentUser);
+            const {privateKey, publicKey, userId} = JSON.parse(currentUser);
 
             setUser({id: userId, privateKey, publicKey});
             navigate("/chat");

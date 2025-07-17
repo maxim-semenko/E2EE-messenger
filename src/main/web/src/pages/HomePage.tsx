@@ -5,8 +5,8 @@ import {Animate} from "../components/Animate.tsx";
 import {Alert, Field, FileUpload, Flex, Textarea, VStack} from "@chakra-ui/react";
 import {AnimatePresence} from "framer-motion";
 import {Modal} from "@/components/Modal.tsx";
-import {type User, useUser} from "@/context/UserContext.ts";
 import {useNavigate} from "react-router-dom";
+import {type CurrentUser, useUserStore} from "@/components/store/userStore.ts";
 
 function HomePage() {
     const [isGenerating, setIsGenerating] = useState(false)
@@ -14,7 +14,8 @@ function HomePage() {
     const [isOpenModalAfterGenerating, setIsOpenModalAfterGenerating] = useState(false);
     const [isShowPreview, setIsShowPreview] = useState(false);
 
-    const {user, setUser} = useUser();
+    const user = useUserStore((state) => state.user);
+    const setUser = useUserStore((state) => state.setUser);
     const navigate = useNavigate();
 
     const generateKeys = async () => {
@@ -24,7 +25,7 @@ function HomePage() {
         try {
             const data = await initKeys();
             if (data) {
-                const user: User = {
+                const user: CurrentUser = {
                     id: data.userId,
                     privateKey: data.privateKey,
                     publicKey: data.publicKey
@@ -145,12 +146,13 @@ function HomePage() {
                                 Generate Keys
                             </Button>
 
-                            <FileUpload.Root accept={[".txt", ".pem"]}>
+                            <FileUpload.Root accept={[".txt"]}>
                                 <FileUpload.HiddenInput
                                     onChange={async (event) => {
                                         const file = event.target.files?.[0];
-                                        if (!file) return;
-                                        await importKeys(file);
+                                        if (file) {
+                                            await importKeys(file);
+                                        }
                                     }}
                                 />
                                 <FileUpload.Trigger asChild>
